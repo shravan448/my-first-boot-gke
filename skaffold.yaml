@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/shravan448/my-first-boot-gke:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/shravan448/my-first-boot-gke:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: my-first-boot-gke
+        chartPath: charts/my-first-boot-gke
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/shravan448/my-first-boot-gke'
+          image.tag: '{{.DIGEST_HEX}}'
